@@ -9,6 +9,7 @@ use Filament\Resources\Resource;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Actions\ViewAction;
 
 class OrderResource extends Resource
 {
@@ -46,6 +47,7 @@ class OrderResource extends Resource
             TextColumn::make('created_at')->dateTime(),
         ])
         ->actions([
+            ViewAction::make(),
             Tables\Actions\EditAction::make(),
         ])
         ->bulkActions([
@@ -59,6 +61,7 @@ class OrderResource extends Resource
             'index' => Pages\ListOrders::route('/'),
             'create' => Pages\CreateOrder::route('/create'),
             'edit' => Pages\EditOrder::route('/{record}/edit'),
+            'view' => Pages\ViewOrder::route('/{record}'),
         ];
     }
 
