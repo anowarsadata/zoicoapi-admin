@@ -41,20 +41,27 @@ class CartItemController extends Controller
             'product_id' => 'required|exists:products,id',
         ]);
 
-        $exists = CartItem::where('cart_id', $request->cart_id)
-            ->where('product_id', $request->product_id)
-            ->exists();
+        $cartItem = CartItem::where('cart_id', $validated['cart_id'])
+            ->where('product_id', $validated['product_id'])
+            ->first();
 
-        if ($exists) {
+        if ($cartItem) {
+            // If exists, increment quantity
+            $cartItem->quantity += 1;
+            $cartItem->save();
+
             return response()->json([
-                'success' => false,
-                'message' => 'Cart item already exists.',
+                'success' => true,
+                'message' => 'Cart item quantity increased.',
+                'cart_item' => $cartItem,
             ], 200);
         }
 
+        // Create new cart item with quantity = 1
         $cartItem = CartItem::create([
-            'cart_id' => $request->cart_id,
-            'product_id' => $request->product_id,
+            'cart_id' => $validated['cart_id'],
+            'product_id' => $validated['product_id'],
+            'quantity' => 1,
         ]);
 
         return response()->json([
@@ -63,6 +70,7 @@ class CartItemController extends Controller
             'cart_item' => $cartItem,
         ], 201);
     }
+
 
     /**
      * Display the specified resource.
