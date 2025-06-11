@@ -171,6 +171,9 @@ Route::group(['namespace' => 'api', 'prefix' => 'v1'], function () {
     Route::post('order/cancel/{id}', [OrderController::class, 'cancel'])->middleware('auth:api');
     Route::delete('order/delete/{id}', [OrderController::class, 'destroy'])->middleware('auth:api');
 
+    Route::post('orders/from-cart', [OrderController::class, 'createOrderFromCart'])->middleware('auth:api');
+
+
     // Order items
     Route::post('order/item/create', [OrderItemController::class, 'store'])->middleware('auth:api');
 
