@@ -11,6 +11,11 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BooleanColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Repeater;
 
 class ProductResource extends Resource
 {
@@ -20,19 +25,32 @@ class ProductResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
-            Forms\Components\TextInput::make('name')->required(),
-            Forms\Components\Textarea::make('description'),
-            Forms\Components\Textarea::make('short_description'),
-            Forms\Components\TextInput::make('price_uk')->numeric()->required(),
-            Forms\Components\TextInput::make('price_usa')->numeric()->required(),
-            Forms\Components\TextInput::make('discount')->numeric(),
-            Forms\Components\Toggle::make('featured')->label('Featured'),
-            Forms\Components\Select::make('product_category_id')
+            TextInput::make('name')->required(),
+            Textarea::make('description'),
+            Textarea::make('short_description'),
+            TextInput::make('price_uk')->numeric()->required(),
+            TextInput::make('price_usa')->numeric()->required(),
+            TextInput::make('discount')->numeric(),
+            Toggle::make('featured')->label('Featured'),
+            Select::make('product_category_id')
                 ->relationship('productCategory', 'name')
                 ->required(),
-            Forms\Components\Select::make('product_discount_type_id')
+            Select::make('product_discount_type_id')
                 ->relationship('discountType', 'name')
                 ->label('Discount Type'),
+
+            // Product Attributes shown in Edit view only
+            Repeater::make('productAttributes')
+                ->label('Product Attributes')
+                ->relationship('productAttributes')
+                ->schema([
+                    TextInput::make('name')->disabled(),
+                    TextInput::make('value')->disabled(),
+                    TextInput::make('unit')->disabled(),
+                ])
+                ->columns(3)
+                ->disabled()
+                ->hidden(fn ($livewire) => $livewire instanceof \Filament\Resources\Pages\CreateRecord),
         ]);
     }
 
