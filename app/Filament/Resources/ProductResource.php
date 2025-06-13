@@ -22,10 +22,19 @@ class ProductResource extends Resource
     protected static ?string $model = Product::class;
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
 
+    protected static ?string $navigationGroup = 'Products';
+    protected static ?int $navigationSort = 0;
+
     public static function form(Form $form): Form
     {
-        return $form->schema([
-            TextInput::make('name')->required(),
+        return $form
+            ->schema([
+                TextInput::make('name')
+                    ->required()
+                    ->unique(ignoreRecord: true)
+                    ->validationMessages([
+                        'unique' => 'This product name already exists. Please choose another name.',
+                    ]),
             Textarea::make('description'),
             Textarea::make('short_description'),
             TextInput::make('price_uk')->numeric()->required(),

@@ -17,6 +17,9 @@ class ProductCategoryResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-tag';
 
+    protected static ?string $navigationGroup = 'Products';
+    protected static ?int $navigationSort = 0;
+
     public static function form(Form $form): Form
     {
         return $form->schema([
