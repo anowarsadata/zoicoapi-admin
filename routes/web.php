@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 
+use App\Models\EmailTemplate;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,3 +18,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+Route::get('/preview-email-template/{id}', function ($id) {
+    $template = EmailTemplate::findOrFail($id);
+    return view('emails.preview', compact('template'));
+})->name('preview.email');
+
