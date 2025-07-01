@@ -19,6 +19,9 @@ class UserAddressResource extends Resource
     protected static ?string $model = UserAddress::class;
     protected static ?string $navigationIcon = 'heroicon-o-map-pin';
 
+    protected static ?string $navigationGroup = 'User Management';
+    protected static ?int $navigationSort = 4;
+
     public static function form(Form $form): Form
     {
         // Distinct options for dropdowns
