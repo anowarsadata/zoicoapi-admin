@@ -44,5 +44,11 @@ class User extends Authenticatable
     {
         return $this->hasMany(Order::class);
     }
+
+    public function oauthAccessTokens()
+    {
+        return $this->hasMany(\App\Models\OauthAccessToken::class);
+    }
+
 }
 
