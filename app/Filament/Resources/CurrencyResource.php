@@ -14,7 +14,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Grouping\Group;
 use Filament\Tables\Filters\SelectFilter;
 
 class CurrencyResource extends Resource
@@ -70,11 +69,6 @@ class CurrencyResource extends Resource
                     ->label('Filter by Country')
                     ->relationship('country', 'name'),
             ])
-            ->groups([
-                Group::make('country.name')
-                    ->label('Country'),
-            ])
-            ->defaultSort('country.name')
             ->actions([
                 EditAction::make(),
                 DeleteAction::make(),

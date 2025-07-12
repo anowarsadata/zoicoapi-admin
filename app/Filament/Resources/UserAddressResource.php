@@ -13,35 +13,35 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Grouping\Group;
 
 class UserAddressResource extends Resource
 {
     protected static ?string $model = UserAddress::class;
     protected static ?string $navigationIcon = 'heroicon-o-map-pin';
-
-    protected static ?string $navigationGroup = 'User Management';
+    protected static ?string $navigationGroup = 'Location Management';
     protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form
     {
-        // Distinct options for dropdowns
-        $countryOptions = UserAddress::query()->distinct()->pluck('country', 'country')->filter()->toArray();
-        $stateOptions = UserAddress::query()->distinct()->pluck('state', 'state')->filter()->toArray();
-        $cityOptions = UserAddress::query()->distinct()->pluck('city', 'city')->filter()->toArray();
-
         return $form->schema([
             Grid::make(2)->schema([
                 Select::make('user_id')
                     ->relationship('user', 'name')
+                    ->label('User')
+                    ->required()
                     ->searchable()
-                    ->required(),
+                    ->preload(),
 
                 TextInput::make('street')->required(),
                 TextInput::make('zip_code')->required(),
 
                 Select::make('country')
                     ->label('Country')
-                    ->options($countryOptions)
+                    ->options(UserAddress::query()->distinct()->pluck('country', 'country')->filter()->toArray())
                     ->searchable()
                     ->reactive()
                     ->afterStateUpdated(fn (callable $set) => $set('state', null))
@@ -49,14 +49,12 @@ class UserAddressResource extends Resource
 
                 Select::make('state')
                     ->label('State')
-                    ->options(fn (callable $get) => 
-                        UserAddress::query()
-                            ->where('country', $get('country'))
-                            ->distinct()
-                            ->pluck('state', 'state')
-                            ->filter()
-                            ->toArray()
-                    )
+                    ->options(fn (callable $get) => UserAddress::query()
+                        ->where('country', $get('country'))
+                        ->distinct()
+                        ->pluck('state', 'state')
+                        ->filter()
+                        ->toArray())
                     ->searchable()
                     ->reactive()
                     ->afterStateUpdated(fn (callable $set) => $set('city', null))
@@ -64,14 +62,12 @@ class UserAddressResource extends Resource
 
                 Select::make('city')
                     ->label('City')
-                    ->options(fn (callable $get) => 
-                        UserAddress::query()
-                            ->where('state', $get('state'))
-                            ->distinct()
-                            ->pluck('city', 'city')
-                            ->filter()
-                            ->toArray()
-                    )
+                    ->options(fn (callable $get) => UserAddress::query()
+                        ->where('state', $get('state'))
+                        ->distinct()
+                        ->pluck('city', 'city')
+                        ->filter()
+                        ->toArray())
                     ->searchable()
                     ->required(),
 
@@ -92,33 +88,38 @@ class UserAddressResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('user.name')->label('User'),
-                TextColumn::make('street'),
-                TextColumn::make('zip_code'),
-                TextColumn::make('city'),
-                TextColumn::make('state'),
-                TextColumn::make('country'),
-                TextColumn::make('phone'),
-                TextColumn::make('type'),
+                TextColumn::make('user.name')->label('User')->sortable()->searchable(),
+                TextColumn::make('street')->sortable()->searchable(),
+                TextColumn::make('zip_code')->label('ZIP Code')->sortable(),
+                TextColumn::make('city')->sortable()->searchable(),
+                TextColumn::make('state')->sortable()->searchable(),
+                TextColumn::make('country')->sortable()->searchable(),
+                TextColumn::make('phone')->sortable(),
+                TextColumn::make('type')->sortable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('country')
-                    ->label('Filter by Country')
+                SelectFilter::make('country')
+                    ->label('Country')
                     ->options(UserAddress::query()->distinct()->pluck('country', 'country')->toArray()),
 
-                Tables\Filters\SelectFilter::make('state')
-                    ->label('Filter by State')
+                SelectFilter::make('state')
+                    ->label('State')
                     ->options(UserAddress::query()->distinct()->pluck('state', 'state')->toArray()),
 
-                Tables\Filters\SelectFilter::make('city')
-                    ->label('Filter by City')
+                SelectFilter::make('city')
+                    ->label('City')
                     ->options(UserAddress::query()->distinct()->pluck('city', 'city')->toArray()),
             ])
+            ->groups([
+                Group::make('country')
+                    ->label('Grouped by Country'),
+            ])
+            ->defaultSort('country')
             ->actions([
-                Tables\Actions\EditAction::make(),
+                EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
+                DeleteBulkAction::make(),
             ]);
     }
 
