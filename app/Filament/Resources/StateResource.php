@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\StateResource\Pages;
 use App\Models\State;
+use App\Models\Country;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Components\TextInput;
@@ -12,12 +13,13 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
-// use Filament\Tables\Actions\ExportAction; // Optional
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteBulkAction;
 
 class StateResource extends Resource
 {
     protected static ?string $model = State::class;
-
     protected static ?string $navigationIcon = 'heroicon-o-map';
     protected static ?string $navigationGroup = 'Location Management';
     protected static ?int $navigationSort = 3;
@@ -44,31 +46,26 @@ class StateResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('id')->sortable(),
-                TextColumn::make('name')
-                    ->label('State')
-                    ->searchable()
-                    ->sortable(),
-
-                TextColumn::make('country.name')
-                    ->label('Country')
-                    ->sortable()
-                    ->searchable(),
+                TextColumn::make('name')->label('State')->sortable()->searchable(),
+                TextColumn::make('country.name')->label('Country')->sortable()->searchable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('country_id')
+                SelectFilter::make('country_id')
                     ->label('Filter by Country')
-                    ->relationship('country', 'name'),
+                    ->options(
+                        Country::whereHas('states') // ✅ Only countries that have states
+                            ->orderBy('name')
+                            ->pluck('name', 'id')
+                            ->toArray()
+                    ),
             ])
+            ->defaultSort('country_id') // ✅ Sort by country (simulate grouping)
             ->actions([
-                Tables\Actions\EditAction::make(),
+                EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
-            ])
-            // ->headerActions([
-            //     ExportAction::make('export'), // Uncomment if using export
-            // ])
-            ;
+                DeleteBulkAction::make(),
+            ]);
     }
 
     public static function getPages(): array
